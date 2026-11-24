@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Mouse</title>
+<style>
+  html, 
+  body { margin: 0; height: 100%; overflow: hidden; background: #111; cursor: crosshair; }
+</style>
+</head>
+<body>
+<script>
+let lastX = null, lastY = null;
+let dx = 0, dy = 0;
+let left = 0, right = 0;
+
+document.onmousemove = e => {
+  if (lastX !== null) {
+    dx += (e.clientX - lastX) * 1;
+    dy += (e.clientY - lastY) * 1;
+  }
+  lastX = e.clientX;
+  lastY = e.clientY;
+};
+
+document.onmousedown = e => {
+  if (e.button === 0) left = 1;
+  if (e.button === 2) right = 1;
+  send();
+};
+
+document.onmouseup = e => {
+  if (e.button === 0) left = 0;
+  if (e.button === 2) right = 0;
+  send();
+};
+
+document.oncontextmenu = e => e.preventDefault();
+
+function send() {
+  const sx = Math.round(dx);
+  const sy = Math.round(dy);
+  dx -= sx;
+  dy -= sy;
+  fetch('/', {
+    method: 'POST',
+    body: `x:${sx},y:${sy},left_btn:${left},right_button:${right}`,
+  }).catch(() => {});
+}
+
+setInterval(() => {
+  if (Math.abs(dx) >= 0.5 || Math.abs(dy) >= 0.5) send();
+}, 16);
+</script>
+</body>
+</html>
